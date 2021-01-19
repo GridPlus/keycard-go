@@ -17,7 +17,10 @@ var (
 	TLV_TYPE_CUSTOM                         uint8 = 0x80
 )
 
-var ErrCardUninitialized = errors.New("card uninitialized")
+var (
+	ErrCardUninitialized = errors.New("card uninitialized")
+	ErrSeedInvalidLength = errors.New("export seed response invalid length")
+)
 
 type SafecardRAPDUStep1 struct {
 	SafecardSalt []byte
@@ -41,6 +44,7 @@ func ParseSelectResponse(resp []byte) (instanceUID []byte, cardPubKey []byte, er
 	if len(resp) == 0 {
 		return nil, nil, errors.New("received nil response")
 	}
+	log.Debug("length of select response: ", len(resp))
 	switch resp[0] {
 	//Initialized
 	case 0xA4:
@@ -50,11 +54,14 @@ func ParseSelectResponse(resp []byte) (instanceUID []byte, cardPubKey []byte, er
 			log.Error("response should have been at least length 86 bytes, was length: ", len(resp))
 			return nil, nil, errors.New("invalid response length")
 		}
-		if resp[3] == 0x81 {
-			instanceUID = resp[6:22]
-			cardPubKey = resp[24:89]
-		} else {
+		//if resp[2] == lengthOfLength this is long initialized format
+		if resp[1] == 0x81 {
+			log.Debug("parsing longInitialized select Response")
 			instanceUID = resp[5:21]
+			cardPubKey = resp[23:88]
+		} else { //else this is short initialized format
+			log.Debug("parsing shortInitialized select response")
+			instanceUID = resp[4:20]
 			cardPubKey = resp[22:87]
 		}
 	case 0x80:
@@ -128,7 +135,7 @@ func ParsePairStep2Response(resp []byte) (SafecardRAPDUStep2, error) {
 
 func ParseExportSeedResponse(resp []byte) ([]byte, error) {
 	if len(resp) != 66 {
-		return nil, errors.New("export seed response invalid length")
+		return nil, ErrSeedInvalidLength
 	}
 	return resp[2:], nil
 }
