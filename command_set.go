@@ -19,6 +19,7 @@ import (
 )
 
 var ErrNoAvailablePairingSlots = errors.New("no available pairing slots")
+var ErrCertInvalid = errors.New("pairing detected invalid certificate")
 
 type CommandSet struct {
 	c               types.Channel
@@ -111,7 +112,7 @@ func (cs *CommandSet) Pair() error {
 	log.Debug("certificate signature valid: ", certValid)
 	if !certValid {
 		log.Error("unable to verify card certificate.")
-		return err
+		return ErrCertInvalid
 	}
 	log.Debug("pair step 2 safecard cert:\n", hex.Dump(pairStep1Resp.SafecardCert.PubKey))
 
