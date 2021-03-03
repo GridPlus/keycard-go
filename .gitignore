@@ -1,4 +1,4 @@
 /build
 *.cap
 /applets
-.vscode
+.vscode/
