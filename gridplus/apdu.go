@@ -89,9 +89,15 @@ func NewAPDUPairStep1(clientSalt []byte, pubKey *ecdsa.PublicKey) *apdu.Command 
 }
 
 func ParsePairStep1Response(resp []byte) (apduResp SafecardRAPDUStep1, err error) {
+	if len(resp) < 34 {
+		return SafecardRAPDUStep1{}, errors.New("pairing response was invalid length")
+	}
 	apduResp.SafecardSalt = resp[0:32]
 	certLength := int(resp[33])
 
+	if len(resp) < 43+certLength {
+		return SafecardRAPDUStep1{}, errors.New("pairing response was invalid length")
+	}
 	apduResp.SafecardCert = SafecardCert{
 		Permissions: resp[34:38],                   //skip 2 byte TLV header, include 2 byte TLV field description
 		PubKey:      resp[38 : 38+2+65],            //2 byte TLV, 65 byte pubkey
