@@ -40,7 +40,7 @@ var SafecardProdCAPubKey = []byte{
 
 //Accepts a safecard certificate and validates it against the provided CA PubKey
 //Safecard CA's provided by SafecardProdCAPubKey or SafecardDevCAPubKey for the respective environments
-func ValidateCardCertificate(cert SafecardCert, ca []byte) bool {
+func ValidateCardCertificate(cert SafecardCert, CAPubKey []byte) bool {
 	//Hash of cert bytes
 	certBytes := append(cert.Permissions, cert.PubKey...)
 	certHash := sha256.Sum256(certBytes)
@@ -48,8 +48,8 @@ func ValidateCardCertificate(cert SafecardCert, ca []byte) bool {
 	//Components of CA certificate public key
 	X := new(big.Int)
 	Y := new(big.Int)
-	X.SetBytes(ca[1:33])
-	Y.SetBytes(ca[33:])
+	X.SetBytes(CAPubKey[1:33])
+	Y.SetBytes(CAPubKey[33:])
 
 	CApubKey := &ecdsa.PublicKey{
 		Curve: secp256k1.S256(),
