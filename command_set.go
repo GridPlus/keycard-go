@@ -108,7 +108,7 @@ func (cs *CommandSet) Pair() error {
 	}
 
 	//Validate card's certificate has valid GridPlus signature
-	certValid := gridplus.ValidateCardCertificate(pairStep1Resp.SafecardCert)
+	certValid := gridplus.ValidateCardCertificate(pairStep1Resp.SafecardCert, gridplus.SafecardProdCAPubKey)
 	log.Debug("certificate signature valid: ", certValid)
 	if !certValid {
 		log.Error("unable to verify card certificate.")
