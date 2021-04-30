@@ -3,6 +3,7 @@ module github.com/GridPlus/keycard-go
 go 1.14
 
 require (
+	github.com/decred/dcrd/dcrec/secp256k1/v2 v2.0.0
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.4.0
